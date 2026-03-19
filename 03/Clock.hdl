@@ -1,0 +1,19 @@
+CHIP Clock {
+    IN period[16], reset;
+    OUT ticks[16], loop;
+
+    PARTS:
+    Inc16 (in=ticksloop, out=incTicks);
+
+    
+    Not16 (in=incTicks, out=NotincTicks);
+    Add16(a=period, b=NotincTicks, out[15]=isloss);
+
+    Or (a=isloss, b=reset, out=resetOrDiff);
+    Mux16 (a=incTicks, b=false, sel=resetOrDiff, out=w1);
+
+    Register (in=w1, load=true, out=ticks, out=ticksloop);
+    
+    Or16Way (in=ticksloop, out=ticksloopis0);
+    Not (in=ticksloopis0, out=loop);
+ }

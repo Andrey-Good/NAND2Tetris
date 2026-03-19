@@ -1,0 +1,212 @@
+/**
+ * Adds two 16-bit values.
+ * The most significant carry bit is ignored.
+ */
+
+CHIP Add16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+
+        Nand (a=a[0], b=b[0], out=Nandab0);
+        Not (in=Nandab0, out=carry0);
+        
+        Nand (a = a[0], b = Nandab0, out = NandaNandab0);
+        Nand (a = b[0], b = Nandab0, out = NandbNandab0);
+        Nand (a = NandaNandab0, b = NandbNandab0, out = out[0]);
+
+
+        Nand (a = a[1], b = b[1], out = Nandab1);
+        Nand (a = a[1], b = Nandab1, out = NandaNandab1);
+        Nand (a = b[1], b = Nandab1, out = NandbNandab1);
+        Nand (a = NandaNandab1, b = NandbNandab1, out = Xorab1);
+
+        Nand (a = Xorab1, b = carry0, out = NandXorabC1);
+        Nand (a = Xorab1, b = NandXorabC1, out = NandXorabNandXorabC1);
+        Nand (a = carry0, b = NandXorabC1, out = NandcNandXorabC1);
+        Nand (a = NandXorabNandXorabC1, b = NandcNandXorabC1, out = out[1]);
+
+        Nand (a = Nandab1, b = NandXorabC1, out = carry1);
+
+
+        Nand (a = a[2], b = b[2], out = Nandab2);
+        Nand (a = a[2], b = Nandab2, out = NandaNandab2);
+        Nand (a = b[2], b = Nandab2, out = NandbNandab2);
+        Nand (a = NandaNandab2, b = NandbNandab2, out = Xorab2);
+
+        Nand (a = Xorab2, b = carry1, out = NandXorabC2);
+        Nand (a = Xorab2, b = NandXorabC2, out = NandXorabNandXorabC2);
+        Nand (a = carry1, b = NandXorabC2, out = NandcNandXorabC2);
+        Nand (a = NandXorabNandXorabC2, b = NandcNandXorabC2, out = out[2]);
+
+        Nand (a = Nandab2, b = NandXorabC2, out = carry2);
+
+
+        Nand (a = a[3], b = b[3], out = Nandab3);
+        Nand (a = a[3], b = Nandab3, out = NandaNandab3);
+        Nand (a = b[3], b = Nandab3, out = NandbNandab3);
+        Nand (a = NandaNandab3, b = NandbNandab3, out = Xorab3);
+
+        Nand (a = Xorab3, b = carry2, out = NandXorabC3);
+        Nand (a = Xorab3, b = NandXorabC3, out = NandXorabNandXorabC3);
+        Nand (a = carry2, b = NandXorabC3, out = NandcNandXorabC3);
+        Nand (a = NandXorabNandXorabC3, b = NandcNandXorabC3, out = out[3]);
+
+        Nand (a = Nandab3, b = NandXorabC3, out = carry3);
+
+
+        Nand (a = a[4], b = b[4], out = Nandab4);
+        Nand (a = a[4], b = Nandab4, out = NandaNandab4);
+        Nand (a = b[4], b = Nandab4, out = NandbNandab4);
+        Nand (a = NandaNandab4, b = NandbNandab4, out = Xorab4);
+
+        Nand (a = Xorab4, b = carry3, out = NandXorabC4);
+        Nand (a = Xorab4, b = NandXorabC4, out = NandXorabNandXorabC4);
+        Nand (a = carry3, b = NandXorabC4, out = NandcNandXorabC4);
+        Nand (a = NandXorabNandXorabC4, b = NandcNandXorabC4, out = out[4]);
+
+        Nand (a = Nandab4, b = NandXorabC4, out = carry4);
+
+
+        Nand (a = a[5], b = b[5], out = Nandab5);
+        Nand (a = a[5], b = Nandab5, out = NandaNandab5);
+        Nand (a = b[5], b = Nandab5, out = NandbNandab5);
+        Nand (a = NandaNandab5, b = NandbNandab5, out = Xorab5);
+
+        Nand (a = Xorab5, b = carry4, out = NandXorabC5);
+        Nand (a = Xorab5, b = NandXorabC5, out = NandXorabNandXorabC5);
+        Nand (a = carry4, b = NandXorabC5, out = NandcNandXorabC5);
+        Nand (a = NandXorabNandXorabC5, b = NandcNandXorabC5, out = out[5]);
+
+        Nand (a = Nandab5, b = NandXorabC5, out = carry5);
+
+
+        Nand (a = a[6], b = b[6], out = Nandab6);
+        Nand (a = a[6], b = Nandab6, out = NandaNandab6);
+        Nand (a = b[6], b = Nandab6, out = NandbNandab6);
+        Nand (a = NandaNandab6, b = NandbNandab6, out = Xorab6);
+
+        Nand (a = Xorab6, b = carry5, out = NandXorabC6);
+        Nand (a = Xorab6, b = NandXorabC6, out = NandXorabNandXorabC6);
+        Nand (a = carry5, b = NandXorabC6, out = NandcNandXorabC6);
+        Nand (a = NandXorabNandXorabC6, b = NandcNandXorabC6, out = out[6]);
+
+        Nand (a = Nandab6, b = NandXorabC6, out = carry6);
+
+
+        Nand (a = a[7], b = b[7], out = Nandab7);
+        Nand (a = a[7], b = Nandab7, out = NandaNandab7);
+        Nand (a = b[7], b = Nandab7, out = NandbNandab7);
+        Nand (a = NandaNandab7, b = NandbNandab7, out = Xorab7);
+
+        Nand (a = Xorab7, b = carry6, out = NandXorabC7);
+        Nand (a = Xorab7, b = NandXorabC7, out = NandXorabNandXorabC7);
+        Nand (a = carry6, b = NandXorabC7, out = NandcNandXorabC7);
+        Nand (a = NandXorabNandXorabC7, b = NandcNandXorabC7, out = out[7]);
+
+        Nand (a = Nandab7, b = NandXorabC7, out = carry7);
+
+
+        Nand (a = a[8], b = b[8], out = Nandab8);
+        Nand (a = a[8], b = Nandab8, out = NandaNandab8);
+        Nand (a = b[8], b = Nandab8, out = NandbNandab8);
+        Nand (a = NandaNandab8, b = NandbNandab8, out = Xorab8);
+
+        Nand (a = Xorab8, b = carry7, out = NandXorabC8);
+        Nand (a = Xorab8, b = NandXorabC8, out = NandXorabNandXorabC8);
+        Nand (a = carry7, b = NandXorabC8, out = NandcNandXorabC8);
+        Nand (a = NandXorabNandXorabC8, b = NandcNandXorabC8, out = out[8]);
+
+        Nand (a = Nandab8, b = NandXorabC8, out = carry8);
+
+
+        Nand (a = a[9], b = b[9], out = Nandab9);
+        Nand (a = a[9], b = Nandab9, out = NandaNandab9);
+        Nand (a = b[9], b = Nandab9, out = NandbNandab9);
+        Nand (a = NandaNandab9, b = NandbNandab9, out = Xorab9);
+
+        Nand (a = Xorab9, b = carry8, out = NandXorabC9);
+        Nand (a = Xorab9, b = NandXorabC9, out = NandXorabNandXorabC9);
+        Nand (a = carry8, b = NandXorabC9, out = NandcNandXorabC9);
+        Nand (a = NandXorabNandXorabC9, b = NandcNandXorabC9, out = out[9]);
+
+        Nand (a = Nandab9, b = NandXorabC9, out = carry9);
+
+
+        Nand (a = a[10], b = b[10], out = Nandab10);
+        Nand (a = a[10], b = Nandab10, out = NandaNandab10);
+        Nand (a = b[10], b = Nandab10, out = NandbNandab10);
+        Nand (a = NandaNandab10, b = NandbNandab10, out = Xorab10);
+
+        Nand (a = Xorab10, b = carry9, out = NandXorabC10);
+        Nand (a = Xorab10, b = NandXorabC10, out = NandXorabNandXorabC10);
+        Nand (a = carry9, b = NandXorabC10, out = NandcNandXorabC10);
+        Nand (a = NandXorabNandXorabC10, b = NandcNandXorabC10, out = out[10]);
+
+        Nand (a = Nandab10, b = NandXorabC10, out = carry10);
+
+
+        Nand (a = a[11], b = b[11], out = Nandab11);
+        Nand (a = a[11], b = Nandab11, out = NandaNandab11);
+        Nand (a = b[11], b = Nandab11, out = NandbNandab11);
+        Nand (a = NandaNandab11, b = NandbNandab11, out = Xorab11);
+
+        Nand (a = Xorab11, b = carry10, out = NandXorabC11);
+        Nand (a = Xorab11, b = NandXorabC11, out = NandXorabNandXorabC11);
+        Nand (a = carry10, b = NandXorabC11, out = NandcNandXorabC11);
+        Nand (a = NandXorabNandXorabC11, b = NandcNandXorabC11, out = out[11]);
+
+        Nand (a = Nandab11, b = NandXorabC11, out = carry11);
+
+
+        Nand (a = a[12], b = b[12], out = Nandab12);
+        Nand (a = a[12], b = Nandab12, out = NandaNandab12);
+        Nand (a = b[12], b = Nandab12, out = NandbNandab12);
+        Nand (a = NandaNandab12, b = NandbNandab12, out = Xorab12);
+
+        Nand (a = Xorab12, b = carry11, out = NandXorabC12);
+        Nand (a = Xorab12, b = NandXorabC12, out = NandXorabNandXorabC12);
+        Nand (a = carry11, b = NandXorabC12, out = NandcNandXorabC12);
+        Nand (a = NandXorabNandXorabC12, b = NandcNandXorabC12, out = out[12]);
+
+        Nand (a = Nandab12, b = NandXorabC12, out = carry12);
+
+
+        Nand (a = a[13], b = b[13], out = Nandab13);
+        Nand (a = a[13], b = Nandab13, out = NandaNandab13);
+        Nand (a = b[13], b = Nandab13, out = NandbNandab13);
+        Nand (a = NandaNandab13, b = NandbNandab13, out = Xorab13);
+
+        Nand (a = Xorab13, b = carry12, out = NandXorabC13);
+        Nand (a = Xorab13, b = NandXorabC13, out = NandXorabNandXorabC13);
+        Nand (a = carry12, b = NandXorabC13, out = NandcNandXorabC13);
+        Nand (a = NandXorabNandXorabC13, b = NandcNandXorabC13, out = out[13]);
+
+        Nand (a = Nandab13, b = NandXorabC13, out = carry13);
+
+
+        Nand (a = a[14], b = b[14], out = Nandab14);
+        Nand (a = a[14], b = Nandab14, out = NandaNandab14);
+        Nand (a = b[14], b = Nandab14, out = NandbNandab14);
+        Nand (a = NandaNandab14, b = NandbNandab14, out = Xorab14);
+
+        Nand (a = Xorab14, b = carry13, out = NandXorabC14);
+        Nand (a = Xorab14, b = NandXorabC14, out = NandXorabNandXorabC14);
+        Nand (a = carry13, b = NandXorabC14, out = NandcNandXorabC14);
+        Nand (a = NandXorabNandXorabC14, b = NandcNandXorabC14, out = out[14]);
+
+        Nand (a = Nandab14, b = NandXorabC14, out = carry14);
+
+
+        Nand (a = a[15], b = b[15], out = Nandab15);
+        Nand (a = a[15], b = Nandab15, out = NandaNandab15);
+        Nand (a = b[15], b = Nandab15, out = NandbNandab15);
+        Nand (a = NandaNandab15, b = NandbNandab15, out = Xorab15);
+
+        Nand (a = Xorab15, b = carry14, out = NandXorabC15);
+        Nand (a = Xorab15, b = NandXorabC15, out = NandXorabNandXorabC15);
+        Nand (a = carry14, b = NandXorabC15, out = NandcNandXorabC15);
+        Nand (a = NandXorabNandXorabC15, b = NandcNandXorabC15, out = out[15]);
+
+}

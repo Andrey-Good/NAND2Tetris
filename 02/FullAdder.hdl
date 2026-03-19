@@ -1,0 +1,22 @@
+/**
+ * Computes the sum of three bits.
+ */
+
+CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+        Nand (a = a, b = b, out = Nandab);
+        Nand (a = a, b = Nandab, out = NandaNandab);
+        Nand (a = b, b = Nandab, out = NandbNandab);
+        Nand (a = NandaNandab, b = NandbNandab, out = Xorab);
+
+        Nand (a = Xorab, b = c, out = NandXorabC);
+        Nand (a = Xorab, b = NandXorabC, out = NandXorabNandXorabC);
+        Nand (a = c, b = NandXorabC, out = NandcNandXorabC);
+        Nand (a = NandXorabNandXorabC, b = NandcNandXorabC, out = sum);
+
+        Nand (a = Nandab, b = NandXorabC, out = carry);
+}
