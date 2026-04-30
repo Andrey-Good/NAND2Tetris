@@ -1,0 +1,178 @@
+function MLMath.scalarMult 2
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 0
+push argument 2
+lt
+not
+if-goto WHILE_END0
+push local 1
+push local 0
+push argument 0
+add
+pop pointer 1
+push that 0
+push local 0
+push argument 1
+add
+pop pointer 1
+push that 0
+call Math.multiply 2
+push argument 3
+call Math.divide 2
+add
+pop local 1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+return
+function MLMath.scalarMultFrom 2
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 0
+push argument 3
+lt
+not
+if-goto WHILE_END0
+push local 1
+push argument 1
+push local 0
+add
+push argument 0
+add
+pop pointer 1
+push that 0
+push local 0
+push argument 2
+add
+pop pointer 1
+push that 0
+call Math.multiply 2
+push argument 4
+call Math.divide 2
+add
+pop local 1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+return
+function MLMath.abs 0
+push argument 0
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
+neg
+return
+goto IF_END0
+label IF_FALSE0
+push argument 0
+return
+label IF_END0
+function MLMath.normalizeL1 2
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 0
+push argument 1
+lt
+not
+if-goto WHILE_END0
+push local 1
+push local 0
+push argument 0
+add
+pop pointer 1
+push that 0
+call MLMath.abs 1
+add
+pop local 1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push argument 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push argument 0
+add
+push local 0
+push argument 0
+add
+pop pointer 1
+push that 0
+push argument 2
+call Math.multiply 2
+push local 1
+call Math.divide 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+label IF_FALSE0
+push constant 0
+return
+function MLMath.sign 0
+push argument 0
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+return
+goto IF_END0
+label IF_FALSE0
+push argument 0
+push constant 0
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+neg
+return
+goto IF_END1
+label IF_FALSE1
+push constant 0
+return
+label IF_END1
+label IF_END0

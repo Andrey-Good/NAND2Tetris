@@ -1,0 +1,8 @@
+class Main {
+    function void main() {
+        var NeuroPong game;
+        let game = NeuroPong.new();
+        do game.run();
+        return;
+    }
+}

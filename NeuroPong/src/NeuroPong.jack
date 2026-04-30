@@ -1,0 +1,533 @@
+class NeuroPong {
+    field int ballX, ballY, ballVelX, ballVelY;
+    field int paddle1Y, paddle2Y;
+    field int SCREENHEIGHT, SCREENMAXOFFSET;
+    field int SCREENMINPOSITION;
+    field int BALLSTARTX, BALLSTARTY;
+    field int BALLSIZE, BALLSLOWSPEED, BALLFASTSPEED, BALLMAXY;
+    field int PADDLE1X, PADDLE2X, PADDLEWIDTH;
+    field int PADDLE1RIGHTX, PADDLE2RIGHTX;
+    field int PADDLE1HITX, PADDLE2HITX;
+    field int PADDLESTARTY, PADDLEHEIGHT, PADDLEMAXY;
+    field int PADDLE1SPEED, PADDLE2SPEED;
+    field int COLLISIONPADDING;
+    field int FRAMEDELAY;
+    field int HITFITNESS, WINFITNESS, MISSFITNESS, LOOPFITNESS;
+    field int SHAPEFITNESS, WALLFITNESS;
+
+    field int POPULATION;
+    field int MUTATION;
+    field int ROUNDSPERMATCH;
+    field int roundInMatch;
+    field int MAXRALLYHITS;
+    field int rallyHits;
+    field int currentModel;
+    field int generation;
+    field Array leftModels, rightModels;
+    field Random rng;
+    field Model ModelPaddle1Y, ModelPaddle2Y;
+    field Model bestLeftModel, bestRightModel;
+
+    constructor NeuroPong new() {
+        var int i;
+
+        let SCREENHEIGHT = 256;
+        let SCREENMAXOFFSET = 1;
+        let SCREENMINPOSITION = 0;
+        let BALLSTARTX = 256;
+        let BALLSTARTY = 128;
+        let BALLSIZE = 4;
+        let BALLSLOWSPEED = 6;
+        let BALLFASTSPEED = 8;
+        let PADDLE1X = 8;
+        let PADDLE2X = 498;
+        let PADDLEWIDTH = 5;
+        let PADDLE1RIGHTX = PADDLE1X + PADDLEWIDTH;
+        let PADDLE2RIGHTX = PADDLE2X + PADDLEWIDTH;
+        let PADDLESTARTY = 100;
+        let PADDLEHEIGHT = 50;
+        let PADDLEMAXY = SCREENHEIGHT - PADDLEHEIGHT - SCREENMAXOFFSET;
+        let PADDLE1SPEED = 4;
+        let PADDLE2SPEED = 4;
+        let COLLISIONPADDING = 3;
+        let FRAMEDELAY = 5;
+        let HITFITNESS = 40;
+        let WINFITNESS = 180;
+        let MISSFITNESS = -250;
+        let LOOPFITNESS = -120;
+        let SHAPEFITNESS = 8;
+        let WALLFITNESS = -8;
+        let BALLMAXY = SCREENHEIGHT - BALLSIZE - SCREENMAXOFFSET;
+        let PADDLE1HITX = PADDLE1RIGHTX + BALLSIZE + COLLISIONPADDING;
+        let PADDLE2HITX = PADDLE2X - PADDLEWIDTH - BALLSIZE - COLLISIONPADDING;
+
+        let POPULATION = 20;
+        let MUTATION = 12;
+        let ROUNDSPERMATCH = 8;
+        let roundInMatch = 0;
+        let MAXRALLYHITS = 12;
+        let rallyHits = 0;
+        let currentModel = 0;
+        let generation = 0;
+        let rng = Random.new(231);
+        let leftModels = Array.new(POPULATION);
+        let rightModels = Array.new(POPULATION);
+
+        let i = 0;
+        while (i < POPULATION) {
+            let ModelPaddle1Y = Model.new();
+            do ModelPaddle1Y.randomize(rng);
+            let leftModels[i] = ModelPaddle1Y;
+
+            let ModelPaddle2Y = Model.new();
+            do ModelPaddle2Y.randomize(rng);
+            let rightModels[i] = ModelPaddle2Y;
+
+            let i = i + 1;
+        }
+
+        let ModelPaddle1Y = leftModels[0];
+        let ModelPaddle2Y = rightModels[0];
+        let bestLeftModel = ModelPaddle1Y;
+        let bestRightModel = ModelPaddle2Y;
+        let ballVelX = BALLFASTSPEED;
+        let ballVelY = BALLSLOWSPEED;
+        do resetRound();
+
+        return this;
+    }
+
+    method void run() {
+        while (true) {
+            do _update();
+            do _render();
+            do Sys.wait(FRAMEDELAY);
+        }
+        return;
+    }
+
+    method void _update() {
+        let ballX = ballX + ballVelX;
+        let ballY = ballY + ballVelY;
+
+        let paddle1Y = paddle1Y + (PADDLE1SPEED * ModelPaddle1Y.predict(ballX, ballY, paddle1Y, ballVelY, predictImpactY(PADDLE1X)));
+        let paddle2Y = paddle2Y + (PADDLE2SPEED * ModelPaddle2Y.predict(ballX, ballY, paddle2Y, ballVelY, predictImpactY(PADDLE2X)));
+
+        do clampPaddles();
+        do addIncomingFitness();
+
+        if (ballY < SCREENMINPOSITION) {
+            let ballY = SCREENMINPOSITION;
+            let ballVelY = -ballVelY;
+        } else {
+            if (ballY > BALLMAXY) {
+                let ballY = BALLMAXY;
+                let ballVelY = -ballVelY;
+            }
+        }
+
+        if ((ballX < PADDLE1HITX) & ((ballY > paddle1Y) & (ballY < (paddle1Y + PADDLEHEIGHT)))) {
+            do setBallVector(ModelPaddle1Y, 1);
+            do ModelPaddle1Y.addFitness(HITFITNESS);
+            do addRallyHit();
+            if (rallyHits > MAXRALLYHITS) {
+                do endLoopRound();
+                return;
+            }
+        } else {
+            if ((ballX > PADDLE2HITX) & ((ballY > paddle2Y) & (ballY < (paddle2Y + PADDLEHEIGHT)))) {
+                do setBallVector(ModelPaddle2Y, -1);
+                do ModelPaddle2Y.addFitness(HITFITNESS);
+                do addRallyHit();
+                if (rallyHits > MAXRALLYHITS) {
+                    do endLoopRound();
+                    return;
+                }
+            }
+        }
+
+        if (ballX < PADDLE1X) {
+            do ModelPaddle1Y.addFitness(missFitness(paddle1Y));
+            do ModelPaddle2Y.addFitness(WINFITNESS);
+            do nextMatch();
+            return;
+        } else {
+            if (ballX > PADDLE2RIGHTX) {
+                do ModelPaddle2Y.addFitness(missFitness(paddle2Y));
+                do ModelPaddle1Y.addFitness(WINFITNESS);
+                do nextMatch();
+                return;
+            }
+        }
+
+        return;
+    }
+
+    method void addIncomingFitness() {
+        if (ballVelX < 0) {
+            do addPaddleFitness(ModelPaddle1Y, paddle1Y);
+        } else {
+            do addPaddleFitness(ModelPaddle2Y, paddle2Y);
+        }
+        return;
+    }
+
+    method void addPaddleFitness(Model model, int paddleY) {
+        var int distance;
+
+        let distance = paddleDistance(paddleY);
+        do model.addFitness(SHAPEFITNESS - (distance / 16));
+
+        if ((paddleY = SCREENMINPOSITION) | (paddleY = PADDLEMAXY)) {
+            do model.addFitness(WALLFITNESS);
+        }
+
+        return;
+    }
+
+    method int missFitness(int paddleY) {
+        return MISSFITNESS - (paddleDistance(paddleY) / 2);
+    }
+
+    method int paddleDistance(int paddleY) {
+        return MLMath.abs(ballY - (paddleY + (PADDLEHEIGHT / 2)));
+    }
+
+    method void addRallyHit() {
+        let rallyHits = rallyHits + 1;
+        return;
+    }
+
+    method void endLoopRound() {
+        do ModelPaddle1Y.addFitness(LOOPFITNESS);
+        do ModelPaddle2Y.addFitness(LOOPFITNESS);
+        do nextMatch();
+        return;
+    }
+
+    method void setBallVector(Model model, int xDirection) {
+        var int vectorType;
+
+        let vectorType = model.predictBallVectorType();
+
+        if (vectorType = 0) {
+            let ballVelX = xDirection * BALLFASTSPEED;
+            let ballVelY = model.predictBallYDirection() * BALLSLOWSPEED;
+        } else {
+            let ballVelX = xDirection * BALLSLOWSPEED;
+            let ballVelY = model.predictBallYDirection() * BALLFASTSPEED;
+        }
+
+        return;
+    }
+
+    method void setDefaultBallVector() {
+        var int xDirection;
+
+        if (ballVelX < 0) {
+            let xDirection = -1;
+        } else {
+            let xDirection = 1;
+        }
+
+        if (rng.nextInt(2) = 0) {
+            let ballVelX = xDirection * BALLFASTSPEED;
+            let ballVelY = BALLSLOWSPEED;
+        } else {
+            let ballVelX = xDirection * BALLSLOWSPEED;
+            let ballVelY = BALLFASTSPEED;
+        }
+
+        if (rng.nextInt(2) = 0) {
+            let ballVelY = -ballVelY;
+        }
+
+        return;
+    }
+
+    method int predictImpactY(int targetX) {
+        var int steps;
+        var int predictedY;
+
+        if (ballVelX < 0) {
+            let steps = (ballX - targetX) / (-ballVelX);
+        } else {
+            let steps = (targetX - ballX) / ballVelX;
+        }
+
+        if (steps < 0) {
+            let steps = 0;
+        }
+
+        let predictedY = ballY + (ballVelY * steps);
+
+        while ((predictedY < SCREENMINPOSITION) | (predictedY > BALLMAXY)) {
+            if (predictedY < SCREENMINPOSITION) {
+                let predictedY = -predictedY;
+            } else {
+                let predictedY = (BALLMAXY + BALLMAXY) - predictedY;
+            }
+        }
+
+        return predictedY;
+    }
+
+    method void nextMatch() {
+        let roundInMatch = roundInMatch + 1;
+
+        if (roundInMatch < ROUNDSPERMATCH) {
+            do resetRound();
+            return;
+        }
+
+        let roundInMatch = 0;
+        let currentModel = currentModel + 1;
+
+        if (currentModel = POPULATION) {
+            let bestLeftModel = evolve(leftModels);
+            let bestRightModel = evolve(rightModels);
+            let currentModel = 0;
+            let generation = generation + 1;
+        }
+
+        let ModelPaddle1Y = leftModels[currentModel];
+        let ModelPaddle2Y = rightModels[currentModel];
+        do resetRound();
+        return;
+    }
+
+    method Model evolve(Array models) {
+        var int index;
+        var int bestIndex;
+        var int secondIndex;
+        var int bestFitness;
+        var int secondFitness;
+        var Model best;
+        var Model second;
+        var Model child;
+
+        let bestIndex = 0;
+        let best = models[0];
+        let bestFitness = best.getFitness();
+
+        let index = 1;
+        while (index < POPULATION) {
+            let child = models[index];
+            if (child.getFitness() > bestFitness) {
+                let bestIndex = index;
+                let best = child;
+                let bestFitness = child.getFitness();
+            }
+            let index = index + 1;
+        }
+
+        if (~(bestIndex = 0)) {
+            let child = models[0];
+            let models[0] = best;
+            let models[bestIndex] = child;
+        }
+
+        let secondIndex = 1;
+        let second = models[1];
+        let secondFitness = second.getFitness();
+
+        let index = 2;
+        while (index < POPULATION) {
+            let child = models[index];
+            if (child.getFitness() > secondFitness) {
+                let secondIndex = index;
+                let second = child;
+                let secondFitness = child.getFitness();
+            }
+            let index = index + 1;
+        }
+
+        if (~(secondIndex = 1)) {
+            let child = models[1];
+            let models[1] = second;
+            let models[secondIndex] = child;
+        }
+
+        do best.resetFitness();
+        do second.resetFitness();
+
+        let index = 2;
+        while (index < POPULATION) {
+            let child = models[index];
+            if (rng.nextInt(5) = 0) {
+                do child.randomize(rng);
+            } else {
+                if (rng.nextInt(2) = 0) {
+                    do child.mutateFrom(best, rng, MUTATION);
+                } else {
+                    do child.mutateFrom(second, rng, MUTATION);
+                }
+            }
+            let index = index + 1;
+        }
+
+        return best;
+    }
+
+    method void clampPaddles() {
+        if (paddle1Y < SCREENMINPOSITION) {
+            let paddle1Y = SCREENMINPOSITION;
+        } else {
+            if (paddle1Y > PADDLEMAXY) {
+                let paddle1Y = PADDLEMAXY;
+            }
+        }
+
+        if (paddle2Y < SCREENMINPOSITION) {
+            let paddle2Y = SCREENMINPOSITION;
+        } else {
+            if (paddle2Y > PADDLEMAXY) {
+                let paddle2Y = PADDLEMAXY;
+            }
+        }
+
+        return;
+    }
+
+    method void _render() {
+        do Screen.clearScreen();
+        do Screen.setColor(true);
+
+        do Screen.drawRectangle(PADDLE1X, paddle1Y, PADDLE1RIGHTX, paddle1Y + PADDLEHEIGHT);
+        do Screen.drawRectangle(PADDLE2X, paddle2Y, PADDLE2RIGHTX, paddle2Y + PADDLEHEIGHT);
+        do Screen.drawRectangle(ballX, ballY, ballX + BALLSIZE, ballY + BALLSIZE);
+
+        do renderModel(bestLeftModel, 70, 70);
+        do renderModel(bestRightModel, 350, 70);
+        do renderStats();
+        return;
+    }
+
+    method void renderModel(Model model, int x, int y) {
+        var int inputX, hiddenX, outputX;
+        var int inputY, hiddenY, outputY;
+        var int inputSize, hiddenSize, outputSize;
+        var int inputIndex, hiddenIndex, outputIndex;
+
+        let inputX = x;
+        let hiddenX = x + 42;
+        let outputX = x + 86;
+
+        let inputIndex = 0;
+        while (inputIndex < model.getInputCount()) {
+            let inputY = y + (inputIndex * 13);
+            let hiddenIndex = 0;
+            while (hiddenIndex < model.getHiddenCount()) {
+                let hiddenY = y + 6 + (hiddenIndex * 15);
+                do Screen.drawLine(inputX, inputY, hiddenX, hiddenY);
+                let hiddenIndex = hiddenIndex + 1;
+            }
+            let inputIndex = inputIndex + 1;
+        }
+
+        let hiddenIndex = 0;
+        while (hiddenIndex < model.getHiddenCount()) {
+            let hiddenY = y + 6 + (hiddenIndex * 15);
+            let outputIndex = 0;
+            while (outputIndex < model.getOutputCount()) {
+                let outputY = y + 22 + (outputIndex * 18);
+                do Screen.drawLine(hiddenX, hiddenY, outputX, outputY);
+                let outputIndex = outputIndex + 1;
+            }
+            let hiddenIndex = hiddenIndex + 1;
+        }
+
+        let inputIndex = 0;
+        while (inputIndex < model.getInputCount()) {
+            let inputY = y + (inputIndex * 13);
+            let inputSize = model.getInputNodeSize(inputIndex);
+            if (inputSize < 1) {
+                let inputSize = 1;
+            }
+            do Screen.drawRectangle(inputX - inputSize, inputY - inputSize, inputX + inputSize, inputY + inputSize);
+            let inputIndex = inputIndex + 1;
+        }
+
+        let hiddenIndex = 0;
+        while (hiddenIndex < model.getHiddenCount()) {
+            let hiddenY = y + 6 + (hiddenIndex * 15);
+            let hiddenSize = model.getHiddenNodeSize(hiddenIndex);
+            if (hiddenSize < 1) {
+                let hiddenSize = 1;
+            }
+            do Screen.drawRectangle(hiddenX - hiddenSize, hiddenY - hiddenSize, hiddenX + hiddenSize, hiddenY + hiddenSize);
+            let hiddenIndex = hiddenIndex + 1;
+        }
+
+        let outputIndex = 0;
+        while (outputIndex < model.getOutputCount()) {
+            let outputY = y + 22 + (outputIndex * 18);
+            let outputSize = model.getOutputNodeSize(outputIndex);
+            if (outputSize < 1) {
+                let outputSize = 1;
+            }
+            do Screen.drawRectangle(outputX - outputSize, outputY - outputSize, outputX + outputSize, outputY + outputSize);
+            let outputIndex = outputIndex + 1;
+        }
+        return;
+    }
+
+    method void renderStats() {
+        do Output.moveCursor(0, 25);
+        do Output.printChar(103);
+        do Output.printChar(58);
+        do Output.printInt(generation);
+
+        do Output.moveCursor(1, 25);
+        do Output.printChar(108);
+        do Output.printChar(58);
+        do Output.printInt(currentModel);
+        do Output.printChar(47);
+        do Output.printInt(ModelPaddle1Y.getFitness());
+
+        do Output.moveCursor(2, 25);
+        do Output.printChar(114);
+        do Output.printChar(58);
+        do Output.printInt(currentModel);
+        do Output.printChar(47);
+        do Output.printInt(ModelPaddle2Y.getFitness());
+
+        do Output.moveCursor(3, 25);
+        do Output.printChar(109);
+        do Output.printChar(58);
+        do Output.printInt(roundInMatch + 1);
+        do Output.printChar(47);
+        do Output.printInt(ROUNDSPERMATCH);
+        return;
+    }
+
+    method void resetRound() {
+        let ballX = BALLSTARTX;
+        let ballY = 16 + rng.nextInt(BALLMAXY - 32);
+        let ballVelX = -ballVelX;
+        let rallyHits = 0;
+        do setDefaultBallVector();
+        let paddle1Y = PADDLESTARTY;
+        let paddle2Y = PADDLESTARTY;
+        return;
+    }
+
+    method void dispose() {
+        var int i;
+
+        let i = 0;
+        while (i < POPULATION) {
+            let ModelPaddle1Y = leftModels[i];
+            do ModelPaddle1Y.dispose();
+            let ModelPaddle2Y = rightModels[i];
+            do ModelPaddle2Y.dispose();
+            let i = i + 1;
+        }
+
+        do leftModels.dispose();
+        do rightModels.dispose();
+        do rng.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,575 @@
+function Model.new 0
+push constant 15
+call Memory.alloc 1
+pop pointer 0
+push constant 6
+pop this 4
+push constant 4
+pop this 5
+push constant 3
+pop this 6
+push this 4
+push this 5
+call Math.multiply 2
+pop this 7
+push this 5
+push this 6
+call Math.multiply 2
+pop this 8
+push constant 16
+pop this 9
+push constant 128
+pop this 10
+push constant 256
+pop this 11
+push constant 256
+pop this 12
+push constant 128
+pop this 13
+push constant 0
+pop this 14
+push this 7
+call Array.new 1
+pop this 0
+push this 8
+call Array.new 1
+pop this 1
+push this 4
+call Array.new 1
+pop this 2
+push this 5
+call Array.new 1
+pop this 3
+push pointer 0
+return
+function Model.randomize 1
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 7
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 0
+add
+push argument 1
+push constant 16
+call Random.nextRange 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push this 8
+lt
+not
+if-goto WHILE_END1
+push local 0
+push this 1
+add
+push argument 1
+push constant 16
+call Random.nextRange 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push constant 0
+pop this 14
+push constant 0
+return
+function Model.mutateFrom 1
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 7
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 0
+add
+push pointer 0
+push argument 1
+push local 0
+call Model.getInputHiddenWeight 2
+push argument 2
+push argument 3
+call Random.nextRange 2
+add
+call Model.clampWeight 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push this 8
+lt
+not
+if-goto WHILE_END1
+push local 0
+push this 1
+add
+push pointer 0
+push argument 1
+push local 0
+call Model.getHiddenOutputWeight 2
+push argument 2
+push argument 3
+call Random.nextRange 2
+add
+call Model.clampWeight 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push constant 0
+pop this 14
+push constant 0
+return
+function Model.predict 3
+push argument 0
+pop pointer 0
+push constant 0
+push this 2
+add
+push argument 2
+push argument 3
+sub
+push this 9
+call Math.multiply 2
+push this 11
+call Math.divide 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 1
+push this 2
+add
+push argument 2
+push this 13
+sub
+push this 9
+call Math.multiply 2
+push this 13
+call Math.divide 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 2
+push this 2
+add
+push argument 1
+push this 12
+sub
+push this 9
+call Math.multiply 2
+push this 12
+call Math.divide 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 3
+push this 2
+add
+push argument 4
+call MLMath.sign 1
+push this 9
+call Math.multiply 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 4
+push this 2
+add
+push argument 5
+push argument 3
+sub
+push this 9
+call Math.multiply 2
+push this 11
+call Math.divide 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 2
+push this 4
+push constant 1
+sub
+push this 9
+call MLMath.normalizeL1 3
+pop temp 0
+push constant 5
+push this 2
+add
+push this 9
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 5
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 4
+call Math.multiply 2
+pop local 2
+push this 0
+push local 2
+push this 2
+push this 4
+push this 9
+call MLMath.scalarMultFrom 5
+pop local 1
+push local 0
+push this 3
+add
+push local 1
+call MLMath.sign 1
+push this 9
+call Math.multiply 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+push constant 0
+call Model.outputScore 2
+call MLMath.sign 1
+return
+function Model.predictBallYDirection 0
+push argument 0
+pop pointer 0
+push pointer 0
+push constant 2
+call Model.outputScore 2
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+neg
+return
+goto IF_END0
+label IF_FALSE0
+push constant 1
+return
+label IF_END0
+function Model.predictBallVectorType 0
+push argument 0
+pop pointer 0
+push pointer 0
+push constant 1
+call Model.outputScore 2
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+goto IF_END0
+label IF_FALSE0
+push constant 1
+return
+label IF_END0
+function Model.outputScore 0
+push argument 0
+pop pointer 0
+push this 1
+push argument 1
+push this 5
+call Math.multiply 2
+push this 3
+push this 5
+push this 9
+call MLMath.scalarMultFrom 5
+return
+function Model.addFitness 0
+push argument 0
+pop pointer 0
+push this 14
+push argument 1
+add
+pop this 14
+push constant 0
+return
+function Model.resetFitness 0
+push argument 0
+pop pointer 0
+push constant 0
+pop this 14
+push constant 0
+return
+function Model.getFitness 0
+push argument 0
+pop pointer 0
+push this 14
+return
+function Model.getInputCount 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Model.getHiddenCount 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function Model.getOutputCount 0
+push argument 0
+pop pointer 0
+push this 6
+return
+function Model.getInputHiddenWeight 0
+push argument 0
+pop pointer 0
+push argument 1
+push this 0
+add
+pop pointer 1
+push that 0
+return
+function Model.getHiddenOutputWeight 0
+push argument 0
+pop pointer 0
+push argument 1
+push this 1
+add
+pop pointer 1
+push that 0
+return
+function Model.getInputNodeSize 0
+push argument 0
+pop pointer 0
+push pointer 0
+push constant 2
+push argument 1
+push this 2
+add
+pop pointer 1
+push that 0
+call MLMath.abs 1
+push constant 4
+call Math.divide 2
+add
+call Model.clampNodeSize 2
+return
+function Model.getHiddenNodeSize 4
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+push argument 1
+push this 4
+call Math.multiply 2
+pop local 3
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push local 3
+push local 0
+add
+push this 0
+add
+pop pointer 1
+push that 0
+call MLMath.abs 1
+add
+pop local 1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 2
+push local 1
+push this 9
+call Math.divide 2
+add
+pop local 2
+push pointer 0
+push local 2
+call Model.clampNodeSize 2
+return
+function Model.getOutputNodeSize 4
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+push argument 1
+push this 5
+call Math.multiply 2
+pop local 3
+label WHILE_EXP0
+push local 0
+push this 5
+lt
+not
+if-goto WHILE_END0
+push local 1
+push local 3
+push local 0
+add
+push this 1
+add
+pop pointer 1
+push that 0
+call MLMath.abs 1
+add
+pop local 1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 2
+push local 1
+push this 9
+call Math.divide 2
+add
+pop local 2
+push pointer 0
+push local 2
+call Model.clampNodeSize 2
+return
+function Model.clampWeight 0
+push argument 0
+pop pointer 0
+push argument 1
+push this 10
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 10
+return
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push this 10
+neg
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 10
+neg
+return
+goto IF_END1
+label IF_FALSE1
+push argument 1
+return
+label IF_END1
+label IF_END0
+function Model.clampNodeSize 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 2
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 2
+return
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push constant 8
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 8
+return
+goto IF_END1
+label IF_FALSE1
+push argument 1
+return
+label IF_END1
+label IF_END0
+function Model.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call Array.dispose 1
+pop temp 0
+push this 1
+call Array.dispose 1
+pop temp 0
+push this 2
+call Array.dispose 1
+pop temp 0
+push this 3
+call Array.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

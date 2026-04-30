@@ -1,0 +1,43 @@
+class Random {
+    field int seed;
+
+    constructor Random new(int start) {
+        let seed = start;
+        if (seed < 1) {
+            let seed = 1;
+        }
+        while (seed > 996) {
+            let seed = seed - 997;
+        }
+        return this;
+    }
+
+    method int nextInt(int max) {
+        var int value;
+
+        if (max < 1) {
+            return 0;
+        }
+
+        let seed = (seed * 29) + 17;
+        while (seed > 996) {
+            let seed = seed - 997;
+        }
+
+        let value = seed;
+        while (value > (max - 1)) {
+            let value = value - max;
+        }
+
+        return value;
+    }
+
+    method int nextRange(int span) {
+        return nextInt((span * 2) + 1) - span;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,231 @@
+class Model {
+    field Array inputHiddenWeights;
+    field Array hiddenOutputWeights;
+    field Array inputFeatures;
+    field Array hiddenFeatures;
+
+    field int INPUTCOUNT;
+    field int HIDDENCOUNT;
+    field int OUTPUTCOUNT;
+    field int INPUTHIDDENCOUNT;
+    field int HIDDENOUTPUTCOUNT;
+    field int SCALE;
+    field int MAXWEIGHT;
+    field int SCREENHEIGHT;
+    field int SCREENMIDX, SCREENMIDY;
+
+    field int fitness;
+
+    constructor Model new() {
+        let INPUTCOUNT = 6;
+        let HIDDENCOUNT = 4;
+        let OUTPUTCOUNT = 3;
+        let INPUTHIDDENCOUNT = INPUTCOUNT * HIDDENCOUNT;
+        let HIDDENOUTPUTCOUNT = HIDDENCOUNT * OUTPUTCOUNT;
+        let SCALE = 16;
+        let MAXWEIGHT = 128;
+        let SCREENHEIGHT = 256;
+        let SCREENMIDX = 256;
+        let SCREENMIDY = 128;
+        let fitness = 0;
+
+        let inputHiddenWeights = Array.new(INPUTHIDDENCOUNT);
+        let hiddenOutputWeights = Array.new(HIDDENOUTPUTCOUNT);
+        let inputFeatures = Array.new(INPUTCOUNT);
+        let hiddenFeatures = Array.new(HIDDENCOUNT);
+
+        return this;
+    }
+
+    method void randomize(Random rng) {
+        var int i;
+
+        let i = 0;
+        while (i < INPUTHIDDENCOUNT) {
+            let inputHiddenWeights[i] = rng.nextRange(16);
+            let i = i + 1;
+        }
+
+        let i = 0;
+        while (i < HIDDENOUTPUTCOUNT) {
+            let hiddenOutputWeights[i] = rng.nextRange(16);
+            let i = i + 1;
+        }
+
+        let fitness = 0;
+        return;
+    }
+
+    method void mutateFrom(Model source, Random rng, int mutationSize) {
+        var int i;
+
+        let i = 0;
+        while (i < INPUTHIDDENCOUNT) {
+            let inputHiddenWeights[i] = clampWeight(source.getInputHiddenWeight(i) + rng.nextRange(mutationSize));
+            let i = i + 1;
+        }
+
+        let i = 0;
+        while (i < HIDDENOUTPUTCOUNT) {
+            let hiddenOutputWeights[i] = clampWeight(source.getHiddenOutputWeight(i) + rng.nextRange(mutationSize));
+            let i = i + 1;
+        }
+
+        let fitness = 0;
+        return;
+    }
+
+    method int predict(int ballX, int ballY, int paddleY, int ballVelY, int impactY) {
+        var int i;
+        var int hiddenScore;
+        var int baseIndex;
+
+        let inputFeatures[0] = ((ballY - paddleY) * SCALE) / SCREENHEIGHT;
+        let inputFeatures[1] = ((ballY - SCREENMIDY) * SCALE) / SCREENMIDY;
+        let inputFeatures[2] = ((ballX - SCREENMIDX) * SCALE) / SCREENMIDX;
+        let inputFeatures[3] = MLMath.sign(ballVelY) * SCALE;
+        let inputFeatures[4] = ((impactY - paddleY) * SCALE) / SCREENHEIGHT;
+
+        do MLMath.normalizeL1(inputFeatures, INPUTCOUNT - 1, SCALE);
+        let inputFeatures[5] = SCALE;
+
+        let i = 0;
+        while (i < HIDDENCOUNT) {
+            let baseIndex = i * INPUTCOUNT;
+            let hiddenScore = MLMath.scalarMultFrom(inputHiddenWeights, baseIndex, inputFeatures, INPUTCOUNT, SCALE);
+            let hiddenFeatures[i] = MLMath.sign(hiddenScore) * SCALE;
+            let i = i + 1;
+        }
+
+        return MLMath.sign(outputScore(0));
+    }
+
+    method int predictBallYDirection() {
+        if (outputScore(2) < 0) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    method int predictBallVectorType() {
+        if (outputScore(1) < 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
+    method int outputScore(int outputIndex) {
+        return MLMath.scalarMultFrom(hiddenOutputWeights, outputIndex * HIDDENCOUNT, hiddenFeatures, HIDDENCOUNT, SCALE);
+    }
+
+    method void addFitness(int value) {
+        let fitness = fitness + value;
+        return;
+    }
+
+    method void resetFitness() {
+        let fitness = 0;
+        return;
+    }
+
+    method int getFitness() {
+        return fitness;
+    }
+
+    method int getInputCount() {
+        return INPUTCOUNT;
+    }
+
+    method int getHiddenCount() {
+        return HIDDENCOUNT;
+    }
+
+    method int getOutputCount() {
+        return OUTPUTCOUNT;
+    }
+
+    method int getInputHiddenWeight(int index) {
+        return inputHiddenWeights[index];
+    }
+
+    method int getHiddenOutputWeight(int index) {
+        return hiddenOutputWeights[index];
+    }
+
+    method int getInputNodeSize(int inputIndex) {
+        return clampNodeSize(2 + (MLMath.abs(inputFeatures[inputIndex]) / 4));
+    }
+
+    method int getHiddenNodeSize(int hiddenIndex) {
+        var int inputIndex;
+        var int weightSum;
+        var int size;
+        var int baseIndex;
+
+        let inputIndex = 0;
+        let weightSum = 0;
+        let baseIndex = hiddenIndex * INPUTCOUNT;
+
+        while (inputIndex < INPUTCOUNT) {
+            let weightSum = weightSum + MLMath.abs(inputHiddenWeights[baseIndex + inputIndex]);
+            let inputIndex = inputIndex + 1;
+        }
+
+        let size = 2 + (weightSum / SCALE);
+        return clampNodeSize(size);
+    }
+
+    method int getOutputNodeSize(int outputIndex) {
+        var int hiddenIndex;
+        var int weightSum;
+        var int size;
+        var int baseIndex;
+
+        let hiddenIndex = 0;
+        let weightSum = 0;
+        let baseIndex = outputIndex * HIDDENCOUNT;
+
+        while (hiddenIndex < HIDDENCOUNT) {
+            let weightSum = weightSum + MLMath.abs(hiddenOutputWeights[baseIndex + hiddenIndex]);
+            let hiddenIndex = hiddenIndex + 1;
+        }
+
+        let size = 2 + (weightSum / SCALE);
+        return clampNodeSize(size);
+    }
+
+    method int clampWeight(int value) {
+        if (value > MAXWEIGHT) {
+            return MAXWEIGHT;
+        } else {
+            if (value < -MAXWEIGHT) {
+                return -MAXWEIGHT;
+            } else {
+                return value;
+            }
+        }
+    }
+
+    method int clampNodeSize(int size) {
+        if (size < 2) {
+            return 2;
+        } else {
+            if (size > 8) {
+                return 8;
+            } else {
+                return size;
+            }
+        }
+    }
+
+    method void dispose() {
+        do inputHiddenWeights.dispose();
+        do hiddenOutputWeights.dispose();
+        do inputFeatures.dispose();
+        do hiddenFeatures.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

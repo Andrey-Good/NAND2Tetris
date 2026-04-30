@@ -1,0 +1,1470 @@
+function NeuroPong.new 1
+push constant 50
+call Memory.alloc 1
+pop pointer 0
+push constant 256
+pop this 6
+push constant 1
+pop this 7
+push constant 0
+pop this 8
+push constant 256
+pop this 9
+push constant 128
+pop this 10
+push constant 4
+pop this 11
+push constant 6
+pop this 12
+push constant 8
+pop this 13
+push constant 8
+pop this 15
+push constant 498
+pop this 16
+push constant 5
+pop this 17
+push this 15
+push this 17
+add
+pop this 18
+push this 16
+push this 17
+add
+pop this 19
+push constant 100
+pop this 22
+push constant 50
+pop this 23
+push this 6
+push this 23
+sub
+push this 7
+sub
+pop this 24
+push constant 4
+pop this 25
+push constant 4
+pop this 26
+push constant 3
+pop this 27
+push constant 5
+pop this 28
+push constant 40
+pop this 29
+push constant 180
+pop this 30
+push constant 250
+neg
+pop this 31
+push constant 120
+neg
+pop this 32
+push constant 8
+pop this 33
+push constant 8
+neg
+pop this 34
+push this 6
+push this 11
+sub
+push this 7
+sub
+pop this 14
+push this 18
+push this 11
+add
+push this 27
+add
+pop this 20
+push this 16
+push this 17
+sub
+push this 11
+sub
+push this 27
+sub
+pop this 21
+push constant 20
+pop this 35
+push constant 12
+pop this 36
+push constant 8
+pop this 37
+push constant 0
+pop this 38
+push constant 12
+pop this 39
+push constant 0
+pop this 40
+push constant 0
+pop this 41
+push constant 0
+pop this 42
+push constant 231
+call Random.new 1
+pop this 45
+push this 35
+call Array.new 1
+pop this 43
+push this 35
+call Array.new 1
+pop this 44
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 35
+lt
+not
+if-goto WHILE_END0
+call Model.new 0
+pop this 46
+push this 46
+push this 45
+call Model.randomize 2
+pop temp 0
+push local 0
+push this 43
+add
+push this 46
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+call Model.new 0
+pop this 47
+push this 47
+push this 45
+call Model.randomize 2
+pop temp 0
+push local 0
+push this 44
+add
+push this 47
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+push this 43
+add
+pop pointer 1
+push that 0
+pop this 46
+push constant 0
+push this 44
+add
+pop pointer 1
+push that 0
+pop this 47
+push this 46
+pop this 48
+push this 47
+pop this 49
+push this 13
+pop this 2
+push this 12
+pop this 3
+push pointer 0
+call NeuroPong.resetRound 1
+pop temp 0
+push pointer 0
+return
+function NeuroPong.run 0
+push argument 0
+pop pointer 0
+label WHILE_EXP0
+push constant 0
+not
+not
+if-goto WHILE_END0
+push pointer 0
+call NeuroPong._update 1
+pop temp 0
+push pointer 0
+call NeuroPong._render 1
+pop temp 0
+push this 28
+call Sys.wait 1
+pop temp 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function NeuroPong._update 0
+push argument 0
+pop pointer 0
+push this 0
+push this 2
+add
+pop this 0
+push this 1
+push this 3
+add
+pop this 1
+push this 4
+push this 25
+push this 46
+push this 0
+push this 1
+push this 4
+push this 3
+push pointer 0
+push this 15
+call NeuroPong.predictImpactY 2
+call Model.predict 6
+call Math.multiply 2
+add
+pop this 4
+push this 5
+push this 26
+push this 47
+push this 0
+push this 1
+push this 5
+push this 3
+push pointer 0
+push this 16
+call NeuroPong.predictImpactY 2
+call Model.predict 6
+call Math.multiply 2
+add
+pop this 5
+push pointer 0
+call NeuroPong.clampPaddles 1
+pop temp 0
+push pointer 0
+call NeuroPong.addIncomingFitness 1
+pop temp 0
+push this 1
+push this 8
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 8
+pop this 1
+push this 3
+neg
+pop this 3
+goto IF_END0
+label IF_FALSE0
+push this 1
+push this 14
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 14
+pop this 1
+push this 3
+neg
+pop this 3
+label IF_FALSE1
+label IF_END0
+push this 0
+push this 20
+lt
+push this 1
+push this 4
+gt
+push this 1
+push this 4
+push this 23
+add
+lt
+and
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push pointer 0
+push this 46
+push constant 1
+call NeuroPong.setBallVector 3
+pop temp 0
+push this 46
+push this 29
+call Model.addFitness 2
+pop temp 0
+push pointer 0
+call NeuroPong.addRallyHit 1
+pop temp 0
+push this 40
+push this 39
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push pointer 0
+call NeuroPong.endLoopRound 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE3
+goto IF_END2
+label IF_FALSE2
+push this 0
+push this 21
+gt
+push this 1
+push this 5
+gt
+push this 1
+push this 5
+push this 23
+add
+lt
+and
+and
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push pointer 0
+push this 47
+push constant 1
+neg
+call NeuroPong.setBallVector 3
+pop temp 0
+push this 47
+push this 29
+call Model.addFitness 2
+pop temp 0
+push pointer 0
+call NeuroPong.addRallyHit 1
+pop temp 0
+push this 40
+push this 39
+gt
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push pointer 0
+call NeuroPong.endLoopRound 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE5
+label IF_FALSE4
+label IF_END2
+push this 0
+push this 15
+lt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push this 46
+push pointer 0
+push this 4
+call NeuroPong.missFitness 2
+call Model.addFitness 2
+pop temp 0
+push this 47
+push this 30
+call Model.addFitness 2
+pop temp 0
+push pointer 0
+call NeuroPong.nextMatch 1
+pop temp 0
+push constant 0
+return
+goto IF_END6
+label IF_FALSE6
+push this 0
+push this 19
+gt
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push this 47
+push pointer 0
+push this 5
+call NeuroPong.missFitness 2
+call Model.addFitness 2
+pop temp 0
+push this 46
+push this 30
+call Model.addFitness 2
+pop temp 0
+push pointer 0
+call NeuroPong.nextMatch 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE7
+label IF_END6
+push constant 0
+return
+function NeuroPong.addIncomingFitness 0
+push argument 0
+pop pointer 0
+push this 2
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push this 46
+push this 4
+call NeuroPong.addPaddleFitness 3
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push pointer 0
+push this 47
+push this 5
+call NeuroPong.addPaddleFitness 3
+pop temp 0
+label IF_END0
+push constant 0
+return
+function NeuroPong.addPaddleFitness 1
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 2
+call NeuroPong.paddleDistance 2
+pop local 0
+push argument 1
+push this 33
+push local 0
+push constant 16
+call Math.divide 2
+sub
+call Model.addFitness 2
+pop temp 0
+push argument 2
+push this 8
+eq
+push argument 2
+push this 24
+eq
+or
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+push this 34
+call Model.addFitness 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function NeuroPong.missFitness 0
+push argument 0
+pop pointer 0
+push this 31
+push pointer 0
+push argument 1
+call NeuroPong.paddleDistance 2
+push constant 2
+call Math.divide 2
+sub
+return
+function NeuroPong.paddleDistance 0
+push argument 0
+pop pointer 0
+push this 1
+push argument 1
+push this 23
+push constant 2
+call Math.divide 2
+add
+sub
+call MLMath.abs 1
+return
+function NeuroPong.addRallyHit 0
+push argument 0
+pop pointer 0
+push this 40
+push constant 1
+add
+pop this 40
+push constant 0
+return
+function NeuroPong.endLoopRound 0
+push argument 0
+pop pointer 0
+push this 46
+push this 32
+call Model.addFitness 2
+pop temp 0
+push this 47
+push this 32
+call Model.addFitness 2
+pop temp 0
+push pointer 0
+call NeuroPong.nextMatch 1
+pop temp 0
+push constant 0
+return
+function NeuroPong.setBallVector 1
+push argument 0
+pop pointer 0
+push argument 1
+call Model.predictBallVectorType 1
+pop local 0
+push local 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 2
+push this 13
+call Math.multiply 2
+pop this 2
+push argument 1
+call Model.predictBallYDirection 1
+push this 12
+call Math.multiply 2
+pop this 3
+goto IF_END0
+label IF_FALSE0
+push argument 2
+push this 12
+call Math.multiply 2
+pop this 2
+push argument 1
+call Model.predictBallYDirection 1
+push this 13
+call Math.multiply 2
+pop this 3
+label IF_END0
+push constant 0
+return
+function NeuroPong.setDefaultBallVector 1
+push argument 0
+pop pointer 0
+push this 2
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+neg
+pop local 0
+goto IF_END0
+label IF_FALSE0
+push constant 1
+pop local 0
+label IF_END0
+push this 45
+push constant 2
+call Random.nextInt 2
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
+push this 13
+call Math.multiply 2
+pop this 2
+push this 12
+pop this 3
+goto IF_END1
+label IF_FALSE1
+push local 0
+push this 12
+call Math.multiply 2
+pop this 2
+push this 13
+pop this 3
+label IF_END1
+push this 45
+push constant 2
+call Random.nextInt 2
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 3
+neg
+pop this 3
+label IF_FALSE2
+push constant 0
+return
+function NeuroPong.predictImpactY 2
+push argument 0
+pop pointer 0
+push this 2
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+push argument 1
+sub
+push this 2
+neg
+call Math.divide 2
+pop local 0
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push this 0
+sub
+push this 2
+call Math.divide 2
+pop local 0
+label IF_END0
+push local 0
+push constant 0
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+pop local 0
+label IF_FALSE1
+push this 1
+push this 3
+push local 0
+call Math.multiply 2
+add
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 8
+lt
+push local 1
+push this 14
+gt
+or
+not
+if-goto WHILE_END0
+push local 1
+push this 8
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 1
+neg
+pop local 1
+goto IF_END2
+label IF_FALSE2
+push this 14
+push this 14
+add
+push local 1
+sub
+pop local 1
+label IF_END2
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+return
+function NeuroPong.nextMatch 0
+push argument 0
+pop pointer 0
+push this 38
+push constant 1
+add
+pop this 38
+push this 38
+push this 37
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+call NeuroPong.resetRound 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push constant 0
+pop this 38
+push this 41
+push constant 1
+add
+pop this 41
+push this 41
+push this 35
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push pointer 0
+push this 43
+call NeuroPong.evolve 2
+pop this 48
+push pointer 0
+push this 44
+call NeuroPong.evolve 2
+pop this 49
+push constant 0
+pop this 41
+push this 42
+push constant 1
+add
+pop this 42
+label IF_FALSE1
+push this 41
+push this 43
+add
+pop pointer 1
+push that 0
+pop this 46
+push this 41
+push this 44
+add
+pop pointer 1
+push that 0
+pop this 47
+push pointer 0
+call NeuroPong.resetRound 1
+pop temp 0
+push constant 0
+return
+function NeuroPong.evolve 8
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+push constant 0
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 5
+push local 5
+call Model.getFitness 1
+pop local 3
+push constant 1
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 35
+lt
+not
+if-goto WHILE_END0
+push local 0
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 7
+push local 7
+call Model.getFitness 1
+push local 3
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+pop local 1
+push local 7
+pop local 5
+push local 7
+call Model.getFitness 1
+pop local 3
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 1
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 7
+push constant 0
+push argument 1
+add
+push local 5
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 1
+push argument 1
+add
+push local 7
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE1
+push constant 1
+pop local 2
+push constant 1
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 6
+push local 6
+call Model.getFitness 1
+pop local 4
+push constant 2
+pop local 0
+label WHILE_EXP1
+push local 0
+push this 35
+lt
+not
+if-goto WHILE_END1
+push local 0
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 7
+push local 7
+call Model.getFitness 1
+push local 4
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 0
+pop local 2
+push local 7
+pop local 6
+push local 7
+call Model.getFitness 1
+pop local 4
+label IF_FALSE2
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push local 2
+push constant 1
+eq
+not
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 1
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 7
+push constant 1
+push argument 1
+add
+push local 6
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 2
+push argument 1
+add
+push local 7
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE3
+push local 5
+call Model.resetFitness 1
+pop temp 0
+push local 6
+call Model.resetFitness 1
+pop temp 0
+push constant 2
+pop local 0
+label WHILE_EXP2
+push local 0
+push this 35
+lt
+not
+if-goto WHILE_END2
+push local 0
+push argument 1
+add
+pop pointer 1
+push that 0
+pop local 7
+push this 45
+push constant 5
+call Random.nextInt 2
+push constant 0
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 7
+push this 45
+call Model.randomize 2
+pop temp 0
+goto IF_END4
+label IF_FALSE4
+push this 45
+push constant 2
+call Random.nextInt 2
+push constant 0
+eq
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 7
+push local 5
+push this 45
+push this 36
+call Model.mutateFrom 4
+pop temp 0
+goto IF_END5
+label IF_FALSE5
+push local 7
+push local 6
+push this 45
+push this 36
+call Model.mutateFrom 4
+pop temp 0
+label IF_END5
+label IF_END4
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP2
+label WHILE_END2
+push local 5
+return
+function NeuroPong.clampPaddles 0
+push argument 0
+pop pointer 0
+push this 4
+push this 8
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 8
+pop this 4
+goto IF_END0
+label IF_FALSE0
+push this 4
+push this 24
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 24
+pop this 4
+label IF_FALSE1
+label IF_END0
+push this 5
+push this 8
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 8
+pop this 5
+goto IF_END2
+label IF_FALSE2
+push this 5
+push this 24
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 24
+pop this 5
+label IF_FALSE3
+label IF_END2
+push constant 0
+return
+function NeuroPong._render 0
+push argument 0
+pop pointer 0
+call Screen.clearScreen 0
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push this 15
+push this 4
+push this 18
+push this 4
+push this 23
+add
+call Screen.drawRectangle 4
+pop temp 0
+push this 16
+push this 5
+push this 19
+push this 5
+push this 23
+add
+call Screen.drawRectangle 4
+pop temp 0
+push this 0
+push this 1
+push this 0
+push this 11
+add
+push this 1
+push this 11
+add
+call Screen.drawRectangle 4
+pop temp 0
+push pointer 0
+push this 48
+push constant 70
+push constant 70
+call NeuroPong.renderModel 4
+pop temp 0
+push pointer 0
+push this 49
+push constant 350
+push constant 70
+call NeuroPong.renderModel 4
+pop temp 0
+push pointer 0
+call NeuroPong.renderStats 1
+pop temp 0
+push constant 0
+return
+function NeuroPong.renderModel 12
+push argument 0
+pop pointer 0
+push argument 2
+pop local 0
+push argument 2
+push constant 42
+add
+pop local 1
+push argument 2
+push constant 86
+add
+pop local 2
+push constant 0
+pop local 9
+label WHILE_EXP0
+push local 9
+push argument 1
+call Model.getInputCount 1
+lt
+not
+if-goto WHILE_END0
+push argument 3
+push local 9
+push constant 13
+call Math.multiply 2
+add
+pop local 3
+push constant 0
+pop local 10
+label WHILE_EXP1
+push local 10
+push argument 1
+call Model.getHiddenCount 1
+lt
+not
+if-goto WHILE_END1
+push argument 3
+push constant 6
+add
+push local 10
+push constant 15
+call Math.multiply 2
+add
+pop local 4
+push local 0
+push local 3
+push local 1
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 10
+push constant 1
+add
+pop local 10
+goto WHILE_EXP1
+label WHILE_END1
+push local 9
+push constant 1
+add
+pop local 9
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 10
+label WHILE_EXP2
+push local 10
+push argument 1
+call Model.getHiddenCount 1
+lt
+not
+if-goto WHILE_END2
+push argument 3
+push constant 6
+add
+push local 10
+push constant 15
+call Math.multiply 2
+add
+pop local 4
+push constant 0
+pop local 11
+label WHILE_EXP3
+push local 11
+push argument 1
+call Model.getOutputCount 1
+lt
+not
+if-goto WHILE_END3
+push argument 3
+push constant 22
+add
+push local 11
+push constant 18
+call Math.multiply 2
+add
+pop local 5
+push local 1
+push local 4
+push local 2
+push local 5
+call Screen.drawLine 4
+pop temp 0
+push local 11
+push constant 1
+add
+pop local 11
+goto WHILE_EXP3
+label WHILE_END3
+push local 10
+push constant 1
+add
+pop local 10
+goto WHILE_EXP2
+label WHILE_END2
+push constant 0
+pop local 9
+label WHILE_EXP4
+push local 9
+push argument 1
+call Model.getInputCount 1
+lt
+not
+if-goto WHILE_END4
+push argument 3
+push local 9
+push constant 13
+call Math.multiply 2
+add
+pop local 3
+push argument 1
+push local 9
+call Model.getInputNodeSize 2
+pop local 6
+push local 6
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+pop local 6
+label IF_FALSE0
+push local 0
+push local 6
+sub
+push local 3
+push local 6
+sub
+push local 0
+push local 6
+add
+push local 3
+push local 6
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 9
+push constant 1
+add
+pop local 9
+goto WHILE_EXP4
+label WHILE_END4
+push constant 0
+pop local 10
+label WHILE_EXP5
+push local 10
+push argument 1
+call Model.getHiddenCount 1
+lt
+not
+if-goto WHILE_END5
+push argument 3
+push constant 6
+add
+push local 10
+push constant 15
+call Math.multiply 2
+add
+pop local 4
+push argument 1
+push local 10
+call Model.getHiddenNodeSize 2
+pop local 7
+push local 7
+push constant 1
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+pop local 7
+label IF_FALSE1
+push local 1
+push local 7
+sub
+push local 4
+push local 7
+sub
+push local 1
+push local 7
+add
+push local 4
+push local 7
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 10
+push constant 1
+add
+pop local 10
+goto WHILE_EXP5
+label WHILE_END5
+push constant 0
+pop local 11
+label WHILE_EXP6
+push local 11
+push argument 1
+call Model.getOutputCount 1
+lt
+not
+if-goto WHILE_END6
+push argument 3
+push constant 22
+add
+push local 11
+push constant 18
+call Math.multiply 2
+add
+pop local 5
+push argument 1
+push local 11
+call Model.getOutputNodeSize 2
+pop local 8
+push local 8
+push constant 1
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 1
+pop local 8
+label IF_FALSE2
+push local 2
+push local 8
+sub
+push local 5
+push local 8
+sub
+push local 2
+push local 8
+add
+push local 5
+push local 8
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 11
+push constant 1
+add
+pop local 11
+goto WHILE_EXP6
+label WHILE_END6
+push constant 0
+return
+function NeuroPong.renderStats 0
+push argument 0
+pop pointer 0
+push constant 0
+push constant 25
+call Output.moveCursor 2
+pop temp 0
+push constant 103
+call Output.printChar 1
+pop temp 0
+push constant 58
+call Output.printChar 1
+pop temp 0
+push this 42
+call Output.printInt 1
+pop temp 0
+push constant 1
+push constant 25
+call Output.moveCursor 2
+pop temp 0
+push constant 108
+call Output.printChar 1
+pop temp 0
+push constant 58
+call Output.printChar 1
+pop temp 0
+push this 41
+call Output.printInt 1
+pop temp 0
+push constant 47
+call Output.printChar 1
+pop temp 0
+push this 46
+call Model.getFitness 1
+call Output.printInt 1
+pop temp 0
+push constant 2
+push constant 25
+call Output.moveCursor 2
+pop temp 0
+push constant 114
+call Output.printChar 1
+pop temp 0
+push constant 58
+call Output.printChar 1
+pop temp 0
+push this 41
+call Output.printInt 1
+pop temp 0
+push constant 47
+call Output.printChar 1
+pop temp 0
+push this 47
+call Model.getFitness 1
+call Output.printInt 1
+pop temp 0
+push constant 3
+push constant 25
+call Output.moveCursor 2
+pop temp 0
+push constant 109
+call Output.printChar 1
+pop temp 0
+push constant 58
+call Output.printChar 1
+pop temp 0
+push this 38
+push constant 1
+add
+call Output.printInt 1
+pop temp 0
+push constant 47
+call Output.printChar 1
+pop temp 0
+push this 37
+call Output.printInt 1
+pop temp 0
+push constant 0
+return
+function NeuroPong.resetRound 0
+push argument 0
+pop pointer 0
+push this 9
+pop this 0
+push constant 16
+push this 45
+push this 14
+push constant 32
+sub
+call Random.nextInt 2
+add
+pop this 1
+push this 2
+neg
+pop this 2
+push constant 0
+pop this 40
+push pointer 0
+call NeuroPong.setDefaultBallVector 1
+pop temp 0
+push this 22
+pop this 4
+push this 22
+pop this 5
+push constant 0
+return
+function NeuroPong.dispose 1
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 35
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 43
+add
+pop pointer 1
+push that 0
+pop this 46
+push this 46
+call Model.dispose 1
+pop temp 0
+push local 0
+push this 44
+add
+pop pointer 1
+push that 0
+pop this 47
+push this 47
+call Model.dispose 1
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push this 43
+call Array.dispose 1
+pop temp 0
+push this 44
+call Array.dispose 1
+pop temp 0
+push this 45
+call Random.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

@@ -1,0 +1,98 @@
+function Random.new 0
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push this 0
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+pop this 0
+label IF_FALSE0
+label WHILE_EXP0
+push this 0
+push constant 996
+gt
+not
+if-goto WHILE_END0
+push this 0
+push constant 997
+sub
+pop this 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+return
+function Random.nextInt 1
+push argument 0
+pop pointer 0
+push argument 1
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 0
+push constant 29
+call Math.multiply 2
+push constant 17
+add
+pop this 0
+label WHILE_EXP0
+push this 0
+push constant 996
+gt
+not
+if-goto WHILE_END0
+push this 0
+push constant 997
+sub
+pop this 0
+goto WHILE_EXP0
+label WHILE_END0
+push this 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push argument 1
+push constant 1
+sub
+gt
+not
+if-goto WHILE_END1
+push local 0
+push argument 1
+sub
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+return
+function Random.nextRange 0
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 1
+push constant 2
+call Math.multiply 2
+push constant 1
+add
+call Random.nextInt 2
+push argument 1
+sub
+return
+function Random.dispose 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
